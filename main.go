@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 
@@ -19,8 +21,12 @@ func health(w http.ResponseWriter, req *http.Request) {
 func main() {
     http.HandleFunc("/hello-world", helloWorld)
     http.HandleFunc("/health", health)
-    err := http.ListenAndServe(":5050", nil)
-    if err != nil {
-        log.Fatal("ListenAndServe:", err)
-    }
+    
+	port := ":5050"
+	if envPort := os.Getenv("PORT"); envPort != "" {
+		port = fmt.Sprintf(":%s", envPort)
+	}
+
+	log.Printf("Server started on %s", port)
+	log.Fatal(http.ListenAndServe(port, nil))
 }
