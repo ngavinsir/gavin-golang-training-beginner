@@ -17,8 +17,8 @@ func health(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-    http.Handle("/hello-world", http.HandlerFunc(helloWorld))
-    http.Handle("/health", http.HandlerFunc(health))
+    http.HandleFunc("/hello-world", helloWorld)
+    http.HandleFunc("/health", health)
     err := http.ListenAndServe(":5050", nil)
     if err != nil {
         log.Fatal("ListenAndServe:", err)
