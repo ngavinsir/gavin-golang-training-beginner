@@ -5,28 +5,25 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	restHandler "github.com/ngavinsir/golangtraining/internal/rest"
 )
 
-
-func helloWorld(w http.ResponseWriter, req *http.Request) {	
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(`{"message":"hello world"}`))
-}
-
-func health(w http.ResponseWriter, req *http.Request) {	
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(`{"status":"healthy"}`))
-}
-
 func main() {
-    http.HandleFunc("/hello-world", helloWorld)
-    http.HandleFunc("/health", health)
-    
+	m := http.NewServeMux()
+
+	restHandler.InitHelloHandler(m)
+
 	port := ":5050"
 	if envPort := os.Getenv("PORT"); envPort != "" {
 		port = fmt.Sprintf(":%s", envPort)
 	}
 
+	s := &http.Server{
+		Addr:    port,
+		Handler: m,
+	}
+
 	log.Printf("Server started on %s", port)
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Fatal(s.ListenAndServe())
 }
