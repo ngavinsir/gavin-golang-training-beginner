@@ -1,25 +1,31 @@
 package rest
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-	golangtraining "github.com/ngavinsir/golangtraining"
+	"github.com/ngavinsir/golangtraining"
 )
 
-type paymentCodesHandler struct {
-	repo golangtraining.IPaymentCodesRepository
+type repository interface {
+	Create(ctx context.Context, p *golangtraining.PaymentCode) error
+	GetByID(ctx context.Context, ID string) (golangtraining.PaymentCode, error)
 }
 
-func InitPaymentCodesHandler(r *httprouter.Router, repo golangtraining.IPaymentCodesRepository) {
+type paymentCodesHandler struct {
+	repo repository
+}
+
+func InitPaymentCodesHandler(r *httprouter.Router, repo repository) {
 	h := paymentCodesHandler{
 		repo: repo,
 	}
 
-	r.HandlerFunc("POST", "/payment-codes", h.create)
-	r.HandlerFunc("GET", "/payment-codes/:id", h.get)
+	r.HandlerFunc(http.MethodPost, "/payment-codes", h.create)
+	r.HandlerFunc(http.MethodGet, "/payment-codes/:id", h.get)
 }
 
 func (h paymentCodesHandler) create(w http.ResponseWriter, req *http.Request) {

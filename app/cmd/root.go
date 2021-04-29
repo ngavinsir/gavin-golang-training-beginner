@@ -5,12 +5,11 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
-	"github.com/ngavinsir/golangtraining"
 	postgresRepository "github.com/ngavinsir/golangtraining/internal/postgres"
 )
 
 var (
-	paymentCodesRepository golangtraining.IPaymentCodesRepository
+	paymentCodesRepository *postgresRepository.PaymentCodesRepository
 )
 
 const (
