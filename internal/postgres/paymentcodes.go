@@ -47,3 +47,17 @@ func (p paymentCodesRepository) Create(ctx context.Context, s *golangtraining.Pa
 
 	return
 }
+
+func (p paymentCodesRepository) GetByID(ctx context.Context, ID string) (res golangtraining.PaymentCode, err error) {
+	sqlStatement := `SELECT * FROM payment_code where id=$1`
+	row := p.DB.QueryRow(sqlStatement, ID)
+	if err = row.Scan(
+		&res.ID, &res.PaymentCode, &res.Name, &res.Status,
+		&res.ExpirationDate, &res.CreatedAt, &res.UpdatedAt,
+	); err != nil {
+		err = errors.Wrap(err, "cannot get payment code by ID from DB")
+		return
+	}
+
+	return
+}

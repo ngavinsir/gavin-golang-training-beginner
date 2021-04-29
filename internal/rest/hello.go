@@ -1,10 +1,14 @@
 package rest
 
-import "net/http"
+import (
+	"net/http"
 
-func InitHelloHandler(m *http.ServeMux) {
-	m.HandleFunc("/hello-world", helloWorld)
-	m.HandleFunc("/health", health)
+	"github.com/julienschmidt/httprouter"
+)
+
+func InitHelloHandler(r *httprouter.Router) {
+	r.HandlerFunc("GET", "/hello-world", helloWorld)
+	r.HandlerFunc("GET", "/health", health)
 }
 
 func helloWorld(w http.ResponseWriter, req *http.Request) {

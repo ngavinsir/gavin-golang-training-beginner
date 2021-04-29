@@ -17,4 +17,5 @@ type PaymentCode struct {
 
 type IPaymentCodesRepository interface {
 	Create(ctx context.Context, p *PaymentCode) error
+	GetByID(ctx context.Context, ID string) (PaymentCode, error)
 }
