@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -9,10 +9,11 @@ import (
 	restHandler "github.com/ngavinsir/golangtraining/internal/rest"
 )
 
-func main() {
+func Execute() {
 	m := http.NewServeMux()
 
 	restHandler.InitHelloHandler(m)
+	restHandler.InitPaymentCodesHandler(m, paymentCodesRepository)
 
 	port := ":5050"
 	if envPort := os.Getenv("PORT"); envPort != "" {
