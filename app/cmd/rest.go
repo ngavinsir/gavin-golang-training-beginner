@@ -14,7 +14,7 @@ func Execute() {
 	r := httprouter.New()
 
 	restHandler.InitHelloHandler(r)
-	restHandler.InitPaymentCodesHandler(r, paymentCodesRepository)
+	restHandler.InitPaymentCodesHandler(r, paymentCodesService)
 
 	port := ":5050"
 	if envPort := os.Getenv("PORT"); envPort != "" {

@@ -10,18 +10,18 @@ import (
 	"github.com/ngavinsir/golangtraining"
 )
 
-type repository interface {
+type service interface {
 	Create(ctx context.Context, p *golangtraining.PaymentCode) error
-	GetByID(ctx context.Context, ID string) (golangtraining.PaymentCode, error)
+	GetByID(ctx context.Context, id string) (golangtraining.PaymentCode, error)
 }
 
 type paymentCodesHandler struct {
-	repo repository
+	service service
 }
 
-func InitPaymentCodesHandler(r *httprouter.Router, repo repository) {
+func InitPaymentCodesHandler(r *httprouter.Router, service service) {
 	h := paymentCodesHandler{
-		repo: repo,
+		service: service,
 	}
 
 	r.HandlerFunc(http.MethodPost, "/payment-codes", h.create)
@@ -46,7 +46,7 @@ func (h paymentCodesHandler) create(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if err = h.repo.Create(req.Context(), &paymentCode); err != nil {
+	if err = h.service.Create(req.Context(), &paymentCode); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -58,7 +58,7 @@ func (h paymentCodesHandler) get(w http.ResponseWriter, req *http.Request) {
 	params := httprouter.ParamsFromContext(req.Context())
 	paymentCodeID := params.ByName("id")
 
-	paymentCode, err := h.repo.GetByID(req.Context(), paymentCodeID)
+	paymentCode, err := h.service.GetByID(req.Context(), paymentCodeID)
 	if err != nil {
 		serveJSON(w, "", http.StatusNotFound)
 		return
