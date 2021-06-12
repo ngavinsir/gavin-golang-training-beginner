@@ -6,10 +6,12 @@ import (
 
 	_ "github.com/lib/pq"
 	postgresRepository "github.com/ngavinsir/golangtraining/internal/postgres"
+	"github.com/ngavinsir/golangtraining/paymentcodes"
 )
 
 var (
 	paymentCodesRepository *postgresRepository.PaymentCodesRepository
+	paymentCodesService    *paymentcodes.PaymentCodesService
 )
 
 const (
@@ -24,6 +26,7 @@ func init() {
 	dbConn := initDB()
 
 	paymentCodesRepository = postgresRepository.NewPaymentCodesRepository(dbConn)
+	paymentCodesService = paymentcodes.NewService(paymentCodesRepository)
 }
 
 func initDB() (db *sql.DB) {
