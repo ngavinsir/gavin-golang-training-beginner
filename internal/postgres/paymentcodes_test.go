@@ -120,3 +120,68 @@ func (s paymentCodesTestSuite) TestCreatePaymentCodes() {
 		})
 	}
 }
+
+func (s paymentCodesTestSuite) TestGetByID() {
+	baseDate := time.Date(2020, time.August, 10, 10, 10, 10, 0, time.UTC)
+	seetData := golangtraining.PaymentCode{
+		ID:             "7e8a17ba-3d1a-44d6-873e-e653f3888bf1",
+		PaymentCode:    "paymentcode",
+		Name:           "name",
+		Status:         "status",
+		ExpirationDate: baseDate.AddDate(20, 0, 0),
+		CreatedAt:      baseDate,
+		UpdatedAt:      baseDate,
+	}
+	repo := postgres.NewPaymentCodesRepository(s.DBConn)
+	repo.Create(context.Background(), &seetData)
+
+	type resType struct {
+		Res golangtraining.PaymentCode
+		Err error
+	}
+
+	testCases := []struct {
+		desc           string
+		repo           *postgres.PaymentCodesRepository
+		input          string
+		expectedReturn resType
+		ctx            context.Context
+	}{
+		{
+			desc: "valid id",
+			repo: func() *postgres.PaymentCodesRepository {
+				repo := postgres.NewPaymentCodesRepository(s.DBConn)
+				return repo
+			}(),
+			input: "7e8a17ba-3d1a-44d6-873e-e653f3888bf1",
+			expectedReturn: resType{
+				Res: seetData,
+			},
+			ctx: context.TODO(),
+		},
+		{
+			desc: "invalid id",
+			repo: func() *postgres.PaymentCodesRepository {
+				repo := postgres.NewPaymentCodesRepository(s.DBConn)
+				return repo
+			}(),
+			input: "7e8a17ba-3d1a-44d6-873e-e653f3888bf2",
+			expectedReturn: resType{
+				Err: errors.New("sql: no rows in result set"),
+			},
+			ctx: context.TODO(),
+		},
+	}
+
+	for _, tC := range testCases {
+		s.Run(tC.desc, func() {
+			res, err := tC.repo.GetByID(context.Background(), tC.input)
+			if err != nil {
+				s.Require().Equal(tC.expectedReturn.Err.Error(), errors.Cause(err).Error())
+			}
+
+			s.Require().Equal(tC.expectedReturn.Res, res)
+		})
+	}
+
+}
