@@ -9,16 +9,17 @@ import (
 	"github.com/pkg/errors"
 )
 
-type repository interface {
+//go:generate mockgen -destination=mocks/mock_paymentcodes_repo.go -package=mocks . Repository
+type Repository interface {
 	Create(ctx context.Context, p *golangtraining.PaymentCode) error
 	GetByID(ctx context.Context, id string) (golangtraining.PaymentCode, error)
 }
 
 type PaymentCodesService struct {
-	repo repository
+	repo Repository
 }
 
-func NewService(repo repository) *PaymentCodesService {
+func NewService(repo Repository) *PaymentCodesService {
 	return &PaymentCodesService{
 		repo: repo,
 	}
