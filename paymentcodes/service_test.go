@@ -41,8 +41,8 @@ func TestGetByIDPaymentCode(t *testing.T) {
 
 				return m
 			}(),
-			ctxTimeout:     time.Second * 1,
-			ctx:            context.TODO(),
+			ctxTimeout: time.Second * 1,
+			ctx:        context.TODO(),
 			expectedReturn: resType{
 				Res: mockPaymentCode,
 			},
@@ -60,8 +60,8 @@ func TestGetByIDPaymentCode(t *testing.T) {
 
 				return m
 			}(),
-			ctxTimeout:     time.Second * 1,
-			ctx:            context.TODO(),
+			ctxTimeout: time.Second * 1,
+			ctx:        context.TODO(),
 			expectedReturn: resType{
 				Err: errors.New("Unknown Error"),
 			},

@@ -1,0 +1,32 @@
+version: "2.3"
+networks:
+  integration-tests:
+    driver: bridge
+
+services:
+  # api_test:
+  #   build:
+  #     context: .
+  #     dockerfile: ./test.Dockerfile
+  #   networks:
+  #     - integration-tests
+  #   environment:
+  #     POSTGRES_TEST_URL: "user=postgres password=password dbname=testing host=postgres_test port=5432 sslmode=disable"
+  #   volumes:
+  #     - $PWD:/go_modules/xendit/cash-payment-settings
+  postgres_test:
+    image: postgres:11.4-alpine
+    container_name: cash-payment-setting-postgres-test
+    ports:
+      - 54320:5432
+    environment:
+      POSTGRES_DB: testing
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    networks:
+      - integration-tests
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d testing"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

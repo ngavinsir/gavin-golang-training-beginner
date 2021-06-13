@@ -28,7 +28,6 @@ func (r PaymentCodesRepository) Create(ctx context.Context, p *golangtraining.Pa
 		p.ExpirationDate, p.CreatedAt, p.UpdatedAt,
 	)
 	if err != nil {
-		err = fmt.Errorf("%s: %w", "cannot insert new payment code into DB", err)
 		return err
 	}
 
