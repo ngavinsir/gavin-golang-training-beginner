@@ -78,3 +78,57 @@ func TestGetByIDPaymentCode(t *testing.T) {
 		})
 	}
 }
+
+func TestCreatePaymentCode(t *testing.T) {
+	testCases := []struct {
+		desc           string
+		repo           *mocks.MockRepository
+		ctxTimeout     time.Duration
+		ctx            context.Context
+		expectedReturn error
+	}{
+		{
+			desc: "create payment codes - success",
+			repo: func() *mocks.MockRepository {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockRepository(ctrl)
+
+				m.
+					EXPECT().
+					Create(gomock.Any(), gomock.Any()).
+					Return(nil)
+
+				return m
+			}(),
+			ctxTimeout:     time.Second * 1,
+			ctx:            context.TODO(),
+			expectedReturn: nil,
+		},
+		{
+			desc: "create payment codes - return error from repository",
+			repo: func() *mocks.MockRepository {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockRepository(ctrl)
+
+				m.
+					EXPECT().
+					Create(gomock.Any(), gomock.Any()).
+					Return(errors.New("Unknown Error"))
+
+				return m
+			}(),
+			ctxTimeout:     time.Second * 1,
+			ctx:            context.TODO(),
+			expectedReturn: errors.New("Unknown Error"),
+		},
+	}
+
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			service := paymentcodes.NewService(tC.repo)
+			err := service.Create(tC.ctx, &golangtraining.PaymentCode{})
+
+			require.Equal(t, tC.expectedReturn, err)
+		})
+	}
+}
