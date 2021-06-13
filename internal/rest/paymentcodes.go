@@ -10,16 +10,17 @@ import (
 	"github.com/ngavinsir/golangtraining"
 )
 
-type service interface {
+//go:generate mockgen -destination=mocks/mock_paymentcodes_service.go -package=mocks . Service
+type Service interface {
 	Create(ctx context.Context, p *golangtraining.PaymentCode) error
 	GetByID(ctx context.Context, id string) (golangtraining.PaymentCode, error)
 }
 
 type paymentCodesHandler struct {
-	service service
+	service Service
 }
 
-func InitPaymentCodesHandler(r *httprouter.Router, service service) {
+func InitPaymentCodesHandler(r *httprouter.Router, service Service) {
 	h := paymentCodesHandler{
 		service: service,
 	}
