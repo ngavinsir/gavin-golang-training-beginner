@@ -15,13 +15,20 @@ type Repository interface {
 	GetByID(ctx context.Context, id string) (golangtraining.PaymentCode, error)
 }
 
-type PaymentCodesService struct {
-	repo Repository
+//go:generate mockgen -destination=mocks/mock_users.go -package=mocks . Users
+type Users interface {
+	GetUsers(ctx context.Context) (golangtraining.User, error)
 }
 
-func NewService(repo Repository) *PaymentCodesService {
+type PaymentCodesService struct {
+	repo  Repository
+	users Users
+}
+
+func NewService(repo Repository, users Users) *PaymentCodesService {
 	return &PaymentCodesService{
-		repo: repo,
+		repo:  repo,
+		users: users,
 	}
 }
 
@@ -40,6 +47,12 @@ func (s PaymentCodesService) Create(ctx context.Context, p *golangtraining.Payme
 	now := time.Now().UTC()
 	p.CreatedAt = now
 	p.UpdatedAt = now
+
+	user, err := s.users.GetUsers(ctx)
+	if err != nil {
+		return err
+	}
+	p.Name += user.Name
 
 	err = s.repo.Create(ctx, p)
 	if err != nil {
