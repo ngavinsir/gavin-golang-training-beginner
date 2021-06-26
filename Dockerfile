@@ -13,7 +13,4 @@ EXPOSE 5050
 
 COPY --from=builder /go_modules/golang-training/engine /app
 
-RUN chown -R alpine:alpine /app
-USER alpine
-
 CMD ./engine rest
