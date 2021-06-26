@@ -3,9 +3,12 @@ package cmd
 import (
 	"database/sql"
 	"fmt"
+	"net/http"
+	"time"
 
 	_ "github.com/lib/pq"
 	postgresRepository "github.com/ngavinsir/golangtraining/internal/postgres"
+	"github.com/ngavinsir/golangtraining/internal/users"
 	"github.com/ngavinsir/golangtraining/paymentcodes"
 )
 
@@ -18,15 +21,17 @@ const (
 	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
-	password = "password"
+	password = "postgres"
 	dbname   = "golangbeginner"
 )
 
 func init() {
 	dbConn := initDB()
+	httpClient := initHttpClient()
 
 	paymentCodesRepository = postgresRepository.NewPaymentCodesRepository(dbConn)
-	paymentCodesService = paymentcodes.NewService(paymentCodesRepository)
+	users := users.NewUsersClient(httpClient)
+	paymentCodesService = paymentcodes.NewService(paymentCodesRepository, users)
 }
 
 func initDB() (db *sql.DB) {
@@ -44,4 +49,13 @@ func initDB() (db *sql.DB) {
 		panic(err)
 	}
 	return
+}
+
+func initHttpClient() *http.Client {
+	return &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConnsPerHost: 20,
+		},
+		Timeout: 10 * time.Second,
+	}
 }

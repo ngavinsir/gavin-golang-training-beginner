@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/ngavinsir/golangtraining"
 )
@@ -28,7 +27,6 @@ func (r PaymentCodesRepository) Create(ctx context.Context, p *golangtraining.Pa
 		p.ExpirationDate, p.CreatedAt, p.UpdatedAt,
 	)
 	if err != nil {
-		err = fmt.Errorf("%s: %w", "cannot insert new payment code into DB", err)
 		return err
 	}
 
@@ -43,7 +41,6 @@ func (r PaymentCodesRepository) GetByID(ctx context.Context, id string) (golangt
 		&paymentCode.ID, &paymentCode.PaymentCode, &paymentCode.Name, &paymentCode.Status,
 		&paymentCode.ExpirationDate, &paymentCode.CreatedAt, &paymentCode.UpdatedAt,
 	); err != nil {
-		err = fmt.Errorf("%s: %w", "cannot get payment code by id from DB", err)
 		return paymentCode, err
 	}
 

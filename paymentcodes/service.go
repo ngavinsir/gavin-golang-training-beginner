@@ -9,18 +9,26 @@ import (
 	"github.com/pkg/errors"
 )
 
-type repository interface {
+//go:generate mockgen -destination=mocks/mock_paymentcodes_repo.go -package=mocks . Repository
+type Repository interface {
 	Create(ctx context.Context, p *golangtraining.PaymentCode) error
 	GetByID(ctx context.Context, id string) (golangtraining.PaymentCode, error)
 }
 
-type PaymentCodesService struct {
-	repo repository
+//go:generate mockgen -destination=mocks/mock_users.go -package=mocks . Users
+type Users interface {
+	GetUsers(ctx context.Context) (golangtraining.User, error)
 }
 
-func NewService(repo repository) *PaymentCodesService {
+type PaymentCodesService struct {
+	repo  Repository
+	users Users
+}
+
+func NewService(repo Repository, users Users) *PaymentCodesService {
 	return &PaymentCodesService{
-		repo: repo,
+		repo:  repo,
+		users: users,
 	}
 }
 
@@ -39,6 +47,12 @@ func (s PaymentCodesService) Create(ctx context.Context, p *golangtraining.Payme
 	now := time.Now().UTC()
 	p.CreatedAt = now
 	p.UpdatedAt = now
+
+	user, err := s.users.GetUsers(ctx)
+	if err != nil {
+		return err
+	}
+	p.Name += user.Name
 
 	err = s.repo.Create(ctx, p)
 	if err != nil {
