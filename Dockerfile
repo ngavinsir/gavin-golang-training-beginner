@@ -5,7 +5,7 @@ WORKDIR /src
 
 ENV GO111MODULE=on
 
-RUN GOOS=linux go build -a -o engine app/main.go
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -o engine app/main.go
 
 FROM alpine:latest AS production
 
