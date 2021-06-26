@@ -185,3 +185,37 @@ func (s paymentCodesTestSuite) TestGetByID() {
 	}
 
 }
+
+func (s paymentCodesTestSuite) TestExpirePaymentCodes() {
+	repo := postgres.NewPaymentCodesRepository(s.DBConn)
+
+	s.T().Run("expire-success", func(t *testing.T) {
+		baseDate := time.Date(2020, time.August, 10, 10, 10, 10, 0, time.UTC)
+		mockPaymentCode := golangtraining.PaymentCode{
+			ID:             "7e8a17ba-3d1a-44d6-873e-e653f3888bf1",
+			PaymentCode:    "paymentcode",
+			Name:           "name",
+			Status:         "ACTIVE",
+			ExpirationDate: time.Now().Add(time.Hour * -3).UTC(),
+			CreatedAt:      baseDate,
+			UpdatedAt:      baseDate,
+		}
+		err := repo.Create(context.TODO(), &mockPaymentCode)
+		if err != nil {
+			s.Fail("Error in creating seed settings", err)
+		}
+
+		err = repo.Expire(context.TODO())
+		s.Require().Equal(nil, errors.Cause(err))
+
+		if err == nil {
+			expiredPaymentCodeFromDB, err := repo.GetByID(context.TODO(), "7e8a17ba-3d1a-44d6-873e-e653f3888bf1")
+			if err != nil {
+				s.Fail("Error in getting payment code")
+			}
+
+			s.Require().Equal("INACTIVE", expiredPaymentCodeFromDB.Status)
+			s.Require().True(expiredPaymentCodeFromDB.UpdatedAt.After(mockPaymentCode.UpdatedAt))
+		}
+	})
+}

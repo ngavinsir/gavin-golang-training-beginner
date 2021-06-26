@@ -49,6 +49,20 @@ func (mr *MockRepositoryMockRecorder) Create(arg0, arg1 interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), arg0, arg1)
 }
 
+// Expire mocks base method.
+func (m *MockRepository) Expire(arg0 context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Expire", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Expire indicates an expected call of Expire.
+func (mr *MockRepositoryMockRecorder) Expire(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Expire", reflect.TypeOf((*MockRepository)(nil).Expire), arg0)
+}
+
 // GetByID mocks base method.
 func (m *MockRepository) GetByID(arg0 context.Context, arg1 string) (golangtraining.PaymentCode, error) {
 	m.ctrl.T.Helper()
