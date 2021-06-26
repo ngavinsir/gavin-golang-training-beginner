@@ -14,4 +14,4 @@ EXPOSE 5050
 COPY --from=builder /go_modules/golang-training/engine /app
 RUN pwd
 RUN ls
-CMD ["./engine", "rest"]
+CMD ["/app/engine", "rest"]
