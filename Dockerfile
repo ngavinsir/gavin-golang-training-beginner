@@ -1,16 +1,14 @@
 FROM golang:1.14 AS builder
 
-COPY . /src
-WORKDIR /src
+WORKDIR /go_modules/golang-training
 
-ENV GO111MODULE=on
-
-RUN CGO_ENABLED=0 GOOS=linux go build -o engine app/main.go
+COPY . .
+RUN make engine
 
 FROM alpine:latest AS production
 
-WORKDIR /root/
+WORKDIR /app
 
-COPY --from=builder /src/app/engine .
+COPY --from=builder /go_modules/golang-training/engine /app
 
-CMD ["./engine", "rest"]
+CMD ./engine rest
