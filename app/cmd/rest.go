@@ -8,9 +8,20 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	restHandler "github.com/ngavinsir/golangtraining/internal/rest"
+	"github.com/spf13/cobra"
 )
 
-func Execute() {
+var restCommand = &cobra.Command{
+	Use:   "rest",
+	Short: "Start REST server",
+	Run:   restServer,
+}
+
+func init() {
+	rootCmd.AddCommand(restCommand)
+}
+
+func restServer(cmd *cobra.Command, args []string) {
 	r := httprouter.New()
 
 	restHandler.InitHelloHandler(r)

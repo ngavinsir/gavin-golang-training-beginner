@@ -12,5 +12,6 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lib/pq v1.10.1
 	github.com/pkg/errors v0.9.1
+	github.com/spf13/cobra v1.1.3
 	github.com/stretchr/testify v1.6.1
 )

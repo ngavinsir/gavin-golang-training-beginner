@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/ngavinsir/golangtraining"
 )
@@ -45,4 +46,16 @@ func (r PaymentCodesRepository) GetByID(ctx context.Context, id string) (golangt
 	}
 
 	return paymentCode, nil
+}
+
+func (r PaymentCodesRepository) Expire(ctx context.Context) error {
+	updatedAt := time.Now().UTC()
+
+	sqlStatement := `UPDATE payment_code SET updated_at=$1, status='INACTIVE' WHERE status = 'ACTIVE' and expiration_date <= $2`
+	_, err := r.DB.ExecContext(ctx, sqlStatement, updatedAt, time.Now().UTC())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
