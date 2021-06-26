@@ -1,0 +1,8 @@
+{
+    "cron": [
+      {
+        "command": "./engine expire-payment-codes",
+        "schedule": "*/1 * * * *"
+      }
+    ]
+  }
