@@ -15,4 +15,4 @@ EXPOSE 5050
 
 COPY --from=builder /src/engine .
 
-ENTRYPOINT ["./engine", "rest"]
+CMD ls
