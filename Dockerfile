@@ -10,5 +10,5 @@ FROM alpine:latest AS production
 WORKDIR /app
 
 COPY --from=builder /go_modules/golang-training/engine /app
-
-CMD ./engine rest
+RUN ls
+CMD ./app/engine rest
