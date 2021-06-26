@@ -15,4 +15,4 @@ EXPOSE 5050
 
 COPY --from=builder /app/engine .
 
-CMD ./engine rest
+CMD ["./engine", "rest"]
