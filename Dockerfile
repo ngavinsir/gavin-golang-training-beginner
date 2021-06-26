@@ -11,7 +11,6 @@ WORKDIR /app
 
 EXPOSE 5050
 
-COPY --from=builder /go_modules/golang-training/engine /app
-RUN pwd
-RUN ls
-CMD ["/app/engine", "rest"]
+COPY --from=builder /go_modules/golang-training/engine .
+
+CMD ["./engine", "rest"]
