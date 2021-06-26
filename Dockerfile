@@ -15,4 +15,4 @@ EXPOSE 5050
 
 COPY --from=builder /src/engine .
 
-CMD ls
+CMD engine
