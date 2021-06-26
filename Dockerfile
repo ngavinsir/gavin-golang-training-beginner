@@ -1,18 +1,16 @@
 FROM golang:1.14 AS builder
 
-WORKDIR /app
+COPY . /src
+WORKDIR /src
 
 ENV GO111MODULE=on
 
-COPY . .
-RUN make engine
+RUN CGO_ENABLED=0 GOOS=linux go build -o app app/main.go
 
 FROM alpine:latest AS production
 
-WORKDIR /app
+WORKDIR /root/
 
-EXPOSE 5050
+COPY --from=builder /src/app .
 
-COPY --from=builder /app/engine /app
-
-CMD ./engine rest
+CMD ["./app", "rest"]
