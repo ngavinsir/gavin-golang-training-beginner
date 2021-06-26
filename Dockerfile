@@ -5,12 +5,12 @@ WORKDIR /src
 
 ENV GO111MODULE=on
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o app app/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o engine app/main.go
 
 FROM alpine:latest AS production
 
 WORKDIR /root/
 
-COPY --from=builder /src/app .
+COPY --from=builder /src/app/engine .
 
-CMD ["./app", "rest"]
+CMD ["./engine", "rest"]
