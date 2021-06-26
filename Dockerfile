@@ -9,6 +9,11 @@ FROM alpine:latest AS production
 
 WORKDIR /app
 
+EXPOSE 5050
+
 COPY --from=builder /go_modules/golang-training/engine /app
-RUN ls
-CMD ./app/engine rest
+
+RUN chown -R alpine:alpine /app
+USER alpine
+
+CMD ./engine rest
