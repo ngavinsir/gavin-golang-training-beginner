@@ -13,6 +13,6 @@ WORKDIR /app
 
 EXPOSE 5050
 
-COPY --from=builder /app/engine .
+COPY --from=builder /app/engine /app
 
 CMD ./engine rest
