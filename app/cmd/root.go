@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -28,14 +30,6 @@ var (
 	expirePaymentCodesJob  *jobs.ExpirePaymentCodesJob
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "golangbeginner"
-)
-
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)
@@ -57,10 +51,20 @@ func initApp() {
 	expirePaymentCodesJob = jobs.NewExpirePaymentCodesJob(paymentCodesService)
 }
 
-func initDB() (db *sql.DB) {
+func initDB() *sql.DB {
+	host := mustHaveEnv("POSTGRES_HOST")
+	portStr := mustHaveEnv("POSTGRES_PORT")
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		log.Fatal(err, "POSTGRES_PORT is not well set ")
+	}
+	user := mustHaveEnv("POSTGRES_USER")
+	password := mustHaveEnv("POSTGRES_PASSWORD")
+	database := mustHaveEnv("POSTGRES_DATABASE")
+
 	psqlInfo := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname,
+		host, port, user, password, database,
 	)
 
 	db, err := sql.Open("postgres", psqlInfo)
@@ -71,7 +75,7 @@ func initDB() (db *sql.DB) {
 	if err = db.Ping(); err != nil {
 		panic(err)
 	}
-	return
+	return db
 }
 
 func initHttpClient() *http.Client {
@@ -81,4 +85,12 @@ func initHttpClient() *http.Client {
 		},
 		Timeout: 10 * time.Second,
 	}
+}
+
+func mustHaveEnv(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatal(fmt.Sprintf("%s is not well set", key))
+	}
+	return value
 }

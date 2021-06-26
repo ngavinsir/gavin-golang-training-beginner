@@ -1,3 +1,7 @@
+.PHONY: engine
+engine: # musl tag will be used by docker alpine image
+	GOOS=linux go build -tags musl -a -o engine app/main.go
+
 .PHONY: stop
 stop:
 	@docker-compose down
