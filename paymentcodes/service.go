@@ -13,6 +13,7 @@ import (
 type Repository interface {
 	Create(ctx context.Context, p *golangtraining.PaymentCode) error
 	GetByID(ctx context.Context, id string) (golangtraining.PaymentCode, error)
+	Expire(ctx context.Context) error
 }
 
 //go:generate mockgen -destination=mocks/mock_users.go -package=mocks . Users
@@ -39,6 +40,7 @@ func (s PaymentCodesService) Create(ctx context.Context, p *golangtraining.Payme
 		return err
 	}
 	p.ID = newUUID.String()
+	p.Status = "ACTIVE"
 
 	if p.ExpirationDate.IsZero() {
 		p.ExpirationDate = time.Now().AddDate(51, 0, 0).UTC()
@@ -68,4 +70,13 @@ func (s PaymentCodesService) GetByID(ctx context.Context, id string) (golangtrai
 	}
 
 	return res, nil
+}
+
+func (s PaymentCodesService) Expire(ctx context.Context) error {
+	err := s.repo.Expire(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

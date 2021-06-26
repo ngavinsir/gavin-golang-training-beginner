@@ -3,18 +3,29 @@ package cmd
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
 	_ "github.com/lib/pq"
+	"github.com/ngavinsir/golangtraining/internal/jobs"
 	postgresRepository "github.com/ngavinsir/golangtraining/internal/postgres"
 	"github.com/ngavinsir/golangtraining/internal/users"
 	"github.com/ngavinsir/golangtraining/paymentcodes"
+	"github.com/spf13/cobra"
+)
+
+var (
+	rootCmd = &cobra.Command{
+		Use:   "app",
+		Short: "Application",
+	}
 )
 
 var (
 	paymentCodesRepository *postgresRepository.PaymentCodesRepository
 	paymentCodesService    *paymentcodes.PaymentCodesService
+	expirePaymentCodesJob  *jobs.ExpirePaymentCodesJob
 )
 
 const (
@@ -25,13 +36,25 @@ const (
 	dbname   = "golangbeginner"
 )
 
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func init() {
+	cobra.OnInitialize(initApp)
+}
+
+func initApp() {
 	dbConn := initDB()
 	httpClient := initHttpClient()
 
 	paymentCodesRepository = postgresRepository.NewPaymentCodesRepository(dbConn)
 	users := users.NewUsersClient(httpClient)
 	paymentCodesService = paymentcodes.NewService(paymentCodesRepository, users)
+
+	expirePaymentCodesJob = jobs.NewExpirePaymentCodesJob(paymentCodesService)
 }
 
 func initDB() (db *sql.DB) {
