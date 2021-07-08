@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetByIDPaymentCode(t *testing.T) {
+func TestGetByID(t *testing.T) {
 	mockPaymentCode := golangtraining.PaymentCode{}
 
 	type resType struct {
@@ -85,6 +85,85 @@ func TestGetByIDPaymentCode(t *testing.T) {
 		t.Run(tC.desc, func(t *testing.T) {
 			service := paymentcodes.NewService(tC.repo, tC.users)
 			res, err := service.GetByID(tC.ctx, "")
+
+			require.Equal(t, tC.expectedReturn.Res, res)
+			require.Equal(t, tC.expectedReturn.Err, err)
+		})
+	}
+}
+
+func TestGetByPaymentCode(t *testing.T) {
+	mockPaymentCode := golangtraining.PaymentCode{}
+
+	type resType struct {
+		Res golangtraining.PaymentCode
+		Err error
+	}
+
+	testCases := []struct {
+		desc           string
+		repo           *mocks.MockRepository
+		users          *mocks.MockUsers
+		ctxTimeout     time.Duration
+		ctx            context.Context
+		expectedReturn resType
+	}{
+		{
+			desc: "getByID payment codes - success",
+			repo: func() *mocks.MockRepository {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockRepository(ctrl)
+
+				m.
+					EXPECT().
+					GetByPaymentCode(gomock.Any(), gomock.Any()).
+					Return(mockPaymentCode, nil)
+
+				return m
+			}(),
+			users: func() *mocks.MockUsers {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockUsers(ctrl)
+
+				return m
+			}(),
+			ctxTimeout: time.Second * 1,
+			ctx:        context.TODO(),
+			expectedReturn: resType{
+				Res: mockPaymentCode,
+			},
+		},
+		{
+			desc: "getByID payment codes - return error from repository",
+			repo: func() *mocks.MockRepository {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockRepository(ctrl)
+
+				m.
+					EXPECT().
+					GetByPaymentCode(gomock.Any(), gomock.Any()).
+					Return(mockPaymentCode, errors.New("Unknown Error"))
+
+				return m
+			}(),
+			users: func() *mocks.MockUsers {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockUsers(ctrl)
+
+				return m
+			}(),
+			ctxTimeout: time.Second * 1,
+			ctx:        context.TODO(),
+			expectedReturn: resType{
+				Err: errors.New("Unknown Error"),
+			},
+		},
+	}
+
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			service := paymentcodes.NewService(tC.repo, tC.users)
+			res, err := service.GetByPaymentCode(tC.ctx, "")
 
 			require.Equal(t, tC.expectedReturn.Res, res)
 			require.Equal(t, tC.expectedReturn.Err, err)
