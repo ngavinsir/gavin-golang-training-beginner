@@ -10,6 +10,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
+	"github.com/ngavinsir/golangtraining/inquiries"
 	"github.com/ngavinsir/golangtraining/internal/jobs"
 	postgresRepository "github.com/ngavinsir/golangtraining/internal/postgres"
 	"github.com/ngavinsir/golangtraining/internal/users"
@@ -27,6 +28,8 @@ var (
 var (
 	paymentCodesRepository *postgresRepository.PaymentCodesRepository
 	paymentCodesService    *paymentcodes.PaymentCodesService
+	inquiriesRepository    *postgresRepository.InquiriesRepository
+	inquiriesService       *inquiries.InquiriesService
 	expirePaymentCodesJob  *jobs.ExpirePaymentCodesJob
 )
 
@@ -47,6 +50,9 @@ func initApp() {
 	paymentCodesRepository = postgresRepository.NewPaymentCodesRepository(dbConn)
 	users := users.NewUsersClient(httpClient)
 	paymentCodesService = paymentcodes.NewService(paymentCodesRepository, users)
+
+	inquiriesRepository = postgresRepository.NewInquiriesRepository(dbConn)
+	inquiriesService = inquiries.NewService(inquiriesRepository, paymentCodesService)
 
 	expirePaymentCodesJob = jobs.NewExpirePaymentCodesJob(paymentCodesService)
 }

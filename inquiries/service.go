@@ -31,16 +31,16 @@ func NewService(repo Repository, paymentCodesService PaymentCodesService) *Inqui
 	}
 }
 
-func (s InquiriesService) Create(ctx context.Context, i *golangtraining.Inquiry) error {
-	_, err := s.paymentCodesService.GetByPaymentCode(ctx, i.PaymentCode)
+func (s InquiriesService) Create(ctx context.Context, i *golangtraining.Inquiry) (golangtraining.PaymentCode, error) {
+	p, err := s.paymentCodesService.GetByPaymentCode(ctx, i.PaymentCode)
 	if err != nil {
-		return err
+		return p, err
 	}
 
 	newUUID, err := uuid.NewRandom()
 	if err != nil {
 		err = errors.Wrap(err, "can't generate the UUID")
-		return err
+		return p, err
 	}
 	i.ID = newUUID.String()
 
@@ -50,7 +50,8 @@ func (s InquiriesService) Create(ctx context.Context, i *golangtraining.Inquiry)
 
 	err = s.repo.Create(ctx, i)
 	if err != nil {
-		return err
+		return p, err
 	}
-	return nil
+
+	return p, nil
 }

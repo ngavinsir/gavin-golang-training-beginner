@@ -14,6 +14,10 @@ import (
 )
 
 func TestCreateInquiry(t *testing.T) {
+	mockPaymentCode := golangtraining.PaymentCode{
+		Name: "paymentcode",
+	}
+
 	testCases := []struct {
 		desc                string
 		repo                *mocks.MockRepository
@@ -27,7 +31,7 @@ func TestCreateInquiry(t *testing.T) {
 			repo: func() *mocks.MockRepository {
 				ctrl := gomock.NewController(t)
 				m := mocks.NewMockRepository(ctrl)
-				
+
 				m.
 					EXPECT().
 					Create(gomock.Any(), gomock.Any()).
@@ -42,7 +46,7 @@ func TestCreateInquiry(t *testing.T) {
 				m.
 					EXPECT().
 					GetByPaymentCode(gomock.Any(), gomock.Any()).
-					Return(golangtraining.PaymentCode{}, nil)
+					Return(mockPaymentCode, nil)
 
 				return m
 			}(),
@@ -70,7 +74,7 @@ func TestCreateInquiry(t *testing.T) {
 				m.
 					EXPECT().
 					GetByPaymentCode(gomock.Any(), gomock.Any()).
-					Return(golangtraining.PaymentCode{}, nil)
+					Return(mockPaymentCode, nil)
 
 				return m
 			}(),
@@ -106,9 +110,11 @@ func TestCreateInquiry(t *testing.T) {
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			service := inquiries.NewService(tC.repo, tC.paymentCodesService)
-			err := service.Create(tC.ctx, &golangtraining.Inquiry{})
+			p, err := service.Create(tC.ctx, &golangtraining.Inquiry{})
 			if err != nil {
 				require.Equal(t, tC.expectedReturn.Error(), errors.Cause(err).Error())
+			} else {
+				require.Equal(t, p, mockPaymentCode)
 			}
 		})
 	}
