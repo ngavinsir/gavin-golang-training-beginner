@@ -48,3 +48,18 @@ func (mr *MockRepositoryMockRecorder) Create(arg0, arg1 interface{}) *gomock.Cal
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), arg0, arg1)
 }
+
+// GetByTransactionID mocks base method.
+func (m *MockRepository) GetByTransactionID(arg0 context.Context, arg1 string) (golangtraining.Inquiry, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByTransactionID", arg0, arg1)
+	ret0, _ := ret[0].(golangtraining.Inquiry)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByTransactionID indicates an expected call of GetByTransactionID.
+func (mr *MockRepositoryMockRecorder) GetByTransactionID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByTransactionID", reflect.TypeOf((*MockRepository)(nil).GetByTransactionID), arg0, arg1)
+}

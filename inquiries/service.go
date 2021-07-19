@@ -12,6 +12,7 @@ import (
 //go:generate mockgen -destination=mocks/mock_inquiries_repo.go -package=mocks . Repository
 type Repository interface {
 	Create(ctx context.Context, p *golangtraining.Inquiry) error
+	GetByTransactionID(ctx context.Context, id string) (golangtraining.Inquiry, error)
 }
 
 //go:generate mockgen -destination=mocks/mock_paymentcodes_service.go -package=mocks . PaymentCodesService
@@ -54,4 +55,13 @@ func (s InquiriesService) Create(ctx context.Context, i *golangtraining.Inquiry)
 	}
 
 	return p, nil
+}
+
+func (s InquiriesService) GetByTransactionID(ctx context.Context, id string) (golangtraining.Inquiry, error) {
+	res, err := s.repo.GetByTransactionID(ctx, id)
+	if err != nil {
+		return res, err
+	}
+
+	return res, nil
 }

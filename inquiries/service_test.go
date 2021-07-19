@@ -119,3 +119,74 @@ func TestCreateInquiry(t *testing.T) {
 		})
 	}
 }
+
+func TestGetByTransactionID(t *testing.T) {
+	mockInquiry := golangtraining.Inquiry{}
+
+	type resType struct {
+		Res golangtraining.Inquiry
+		Err error
+	}
+
+	testCases := []struct {
+		desc           string
+		repo           *mocks.MockRepository
+		ctxTimeout     time.Duration
+		ctx            context.Context
+		expectedReturn resType
+	}{
+		{
+			desc: "getByTransactionID payment codes - success",
+			repo: func() *mocks.MockRepository {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockRepository(ctrl)
+
+				m.
+					EXPECT().
+					GetByTransactionID(gomock.Any(), gomock.Any()).
+					Return(mockInquiry, nil)
+
+				return m
+			}(),
+			ctxTimeout: time.Second * 1,
+			ctx:        context.TODO(),
+			expectedReturn: resType{
+				Res: mockInquiry,
+			},
+		},
+		{
+			desc: "getByTransactionID payment codes - return error from repository",
+			repo: func() *mocks.MockRepository {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockRepository(ctrl)
+
+				m.
+					EXPECT().
+					GetByTransactionID(gomock.Any(), gomock.Any()).
+					Return(mockInquiry, errors.New("Unknown Error"))
+
+				return m
+			}(),
+			ctxTimeout: time.Second * 1,
+			ctx:        context.TODO(),
+			expectedReturn: resType{
+				Err: errors.New("Unknown Error"),
+			},
+		},
+	}
+
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+
+			service := inquiries.NewService(tC.repo, mocks.NewMockPaymentCodesService(ctrl))
+			res, err := service.GetByTransactionID(tC.ctx, "")
+
+			if err != nil {
+				require.Equal(t, tC.expectedReturn.Err.Error(), errors.Cause(err).Error())
+			} else {
+				require.Equal(t, tC.expectedReturn.Res, res)
+			}
+		})
+	}
+}
