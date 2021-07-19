@@ -120,3 +120,60 @@ func (s inquiriesTestSuite) TestCreateInquiries() {
 		})
 	}
 }
+
+func (s paymentCodesTestSuite) TestGetByTransactionID() {
+	seedData := golangtraining.Inquiry{
+		TransactionID: "transaction",
+	}
+	repo := postgres.NewInquiriesRepository(s.DBConn)
+	repo.Create(context.Background(), &seedData)
+
+	type resType struct {
+		Res golangtraining.Inquiry
+		Err error
+	}
+
+	testCases := []struct {
+		desc           string
+		repo           *postgres.InquiriesRepository
+		input          string
+		expectedReturn resType
+		ctx            context.Context
+	}{
+		{
+			desc: "valid transaction id",
+			repo: func() *postgres.InquiriesRepository {
+				repo := postgres.NewInquiriesRepository(s.DBConn)
+				return repo
+			}(),
+			input: "transaction",
+			expectedReturn: resType{
+				Res: seedData,
+			},
+			ctx: context.TODO(),
+		},
+		{
+			desc: "invalid transaction id",
+			repo: func() *postgres.InquiriesRepository {
+				repo := postgres.NewInquiriesRepository(s.DBConn)
+				return repo
+			}(),
+			input: "invalid transaction id",
+			expectedReturn: resType{
+				Err: errors.New("sql: no rows in result set"),
+			},
+			ctx: context.TODO(),
+		},
+	}
+
+	for _, tC := range testCases {
+		s.Run(tC.desc, func() {
+			res, err := tC.repo.GetByTransactionID(context.Background(), tC.input)
+			if err != nil {
+				s.Require().Equal(tC.expectedReturn.Err.Error(), errors.Cause(err).Error())
+			}
+
+			s.Require().Equal(tC.expectedReturn.Res, res)
+		})
+	}
+}

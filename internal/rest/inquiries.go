@@ -45,7 +45,7 @@ func (h inquiriesHandler) create(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	p, err := h.service.Create(req.Context(), &inquiry) 
+	p, err := h.service.Create(req.Context(), &inquiry)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

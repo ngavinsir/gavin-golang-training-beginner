@@ -59,8 +59,8 @@ func (s paymentsTestSuite) TestCreatePayments() {
 		ID:            uuid.String(),
 		PaymentCode:   "payment_code",
 		TransactionID: "transaction_id",
-		Name: "name",
-		Amount: "12345",
+		Name:          "name",
+		Amount:        "12345",
 	}
 
 	testCases := []struct {
