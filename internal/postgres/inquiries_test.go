@@ -121,8 +121,9 @@ func (s inquiriesTestSuite) TestCreateInquiries() {
 	}
 }
 
-func (s paymentCodesTestSuite) TestGetByTransactionID() {
+func (s inquiriesTestSuite) TestGetByTransactionID() {
 	seedData := golangtraining.Inquiry{
+		ID:            "7e8a17ba-3d1a-44d6-873e-e653f3888bf1",
 		TransactionID: "transaction",
 	}
 	repo := postgres.NewInquiriesRepository(s.DBConn)

@@ -31,13 +31,13 @@ func NewPublisher(s *session.Session, queue string) (*Publisher, error) {
 	return &p, nil
 }
 
-func (p Publisher) Publish(msg interface{}) (err error) {
+func (p Publisher) Publish(msg interface{}) error {
 	messageBody, _ := json.Marshal(msg)
 
-	_, err = p.SQS.SendMessage(&sqs.SendMessageInput{
+	_, err := p.SQS.SendMessage(&sqs.SendMessageInput{
 		MessageBody: aws.String(string(messageBody)),
 		QueueUrl:    p.QueueUrl,
 	})
 
-	return
+	return err
 }

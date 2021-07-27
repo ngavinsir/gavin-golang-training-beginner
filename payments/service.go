@@ -24,17 +24,29 @@ type PaymentCodesService interface {
 	GetByPaymentCode(ctx context.Context, paymentCode string) (golangtraining.PaymentCode, error)
 }
 
+//go:generate mockgen -destination=mocks/mock_publisher.go -package=mocks . Publisher
+type Publisher interface {
+	Publish(interface{}) error
+}
+
 type PaymentsService struct {
 	inquiriesService    InquiriesService
 	paymentsRepo        PaymentsRepository
 	paymentCodesService PaymentCodesService
+	publisher           Publisher
 }
 
-func NewService(inquiriesService InquiriesService, paymentsRepo PaymentsRepository, paymentCodesService PaymentCodesService) *PaymentsService {
+func NewService(
+	inquiriesService InquiriesService,
+	paymentsRepo PaymentsRepository,
+	paymentCodesService PaymentCodesService,
+	publisher Publisher,
+) *PaymentsService {
 	return &PaymentsService{
 		inquiriesService:    inquiriesService,
 		paymentsRepo:        paymentsRepo,
 		paymentCodesService: paymentCodesService,
+		publisher:           publisher,
 	}
 }
 
@@ -63,6 +75,11 @@ func (s PaymentsService) Create(ctx context.Context, p *golangtraining.Payment) 
 	p.UpdatedAt = now
 
 	err = s.paymentsRepo.Create(ctx, p)
+	if err != nil {
+		return pc, err
+	}
+
+	err = s.publisher.Publish(p)
 	if err != nil {
 		return pc, err
 	}

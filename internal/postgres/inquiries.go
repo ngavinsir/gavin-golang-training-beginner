@@ -37,7 +37,7 @@ func (r InquiriesRepository) GetByTransactionID(ctx context.Context, id string) 
 	sqlStatement := `SELECT * FROM inquiries where transaction_id=$1 limit 1`
 	row := r.DB.QueryRowContext(ctx, sqlStatement, id)
 	if err := row.Scan(
-		&res.ID, &res.PaymentCode, &res.Amount, &res.TransactionID, &res.CreatedAt, &res.UpdatedAt,
+		&res.ID, &res.PaymentCode, &res.TransactionID, &res.Amount, &res.CreatedAt, &res.UpdatedAt,
 	); err != nil {
 		return res, err
 	}

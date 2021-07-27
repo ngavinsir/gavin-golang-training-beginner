@@ -31,11 +31,11 @@ func TestPublisherPublish(t *testing.T) {
 	}
 
 	mockPayment := golangtraining.Payment{
-		ID: "1",
-		PaymentCode: "code",
+		ID:            "1",
+		PaymentCode:   "code",
 		TransactionID: "1",
-		Name: "name",
-		Amount: "12345",
+		Name:          "name",
+		Amount:        "12345",
 	}
 
 	type resType struct {
@@ -51,7 +51,7 @@ func TestPublisherPublish(t *testing.T) {
 	}{
 		{
 			desc: "publish - success",
-			publisher: func() *sqs.Publisher{
+			publisher: func() *sqs.Publisher {
 				p, err := sqs.NewPublisher(sess, queue)
 				if err != nil {
 					panic(err)

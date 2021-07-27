@@ -32,6 +32,7 @@ func TestCreateInquiry(t *testing.T) {
 		paymentsRepo        *mocks.MockPaymentsRepository
 		paymentCodesService *mocks.MockPaymentCodesService
 		inquiriesService    *mocks.MockInquiriesService
+		publisher           *mocks.MockPublisher
 		ctxTimeout          time.Duration
 		ctx                 context.Context
 		expectedReturn      resType
@@ -68,6 +69,17 @@ func TestCreateInquiry(t *testing.T) {
 					EXPECT().
 					GetByTransactionID(gomock.Any(), gomock.Any()).
 					Return(mockInquiry, nil)
+
+				return m
+			}(),
+			publisher: func() *mocks.MockPublisher {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockPublisher(ctrl)
+
+				m.
+					EXPECT().
+					Publish(gomock.Any()).
+					Return(nil)
 
 				return m
 			}(),
@@ -113,6 +125,12 @@ func TestCreateInquiry(t *testing.T) {
 
 				return m
 			}(),
+			publisher: func() *mocks.MockPublisher {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockPublisher(ctrl)
+
+				return m
+			}(),
 			ctxTimeout: time.Second * 1,
 			ctx:        context.TODO(),
 			expectedReturn: resType{
@@ -150,6 +168,12 @@ func TestCreateInquiry(t *testing.T) {
 
 				return m
 			}(),
+			publisher: func() *mocks.MockPublisher {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockPublisher(ctrl)
+
+				return m
+			}(),
 			ctxTimeout: time.Second * 1,
 			ctx:        context.TODO(),
 			expectedReturn: resType{
@@ -182,6 +206,65 @@ func TestCreateInquiry(t *testing.T) {
 
 				return m
 			}(),
+			publisher: func() *mocks.MockPublisher {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockPublisher(ctrl)
+
+				return m
+			}(),
+			ctxTimeout: time.Second * 1,
+			ctx:        context.TODO(),
+			expectedReturn: resType{
+				Res: golangtraining.PaymentCode{},
+				Err: errors.New("Unknown Error"),
+			},
+		},
+		{
+			desc: "create payment inquiry - error from publisher",
+			paymentsRepo: func() *mocks.MockPaymentsRepository {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockPaymentsRepository(ctrl)
+
+				m.
+					EXPECT().
+					Create(gomock.Any(), gomock.Any()).
+					Return(nil)
+
+				return m
+			}(),
+			paymentCodesService: func() *mocks.MockPaymentCodesService {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockPaymentCodesService(ctrl)
+
+				m.
+					EXPECT().
+					GetByPaymentCode(gomock.Any(), gomock.Any()).
+					Return(mockPaymentCode, nil)
+
+				return m
+			}(),
+			inquiriesService: func() *mocks.MockInquiriesService {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockInquiriesService(ctrl)
+
+				m.
+					EXPECT().
+					GetByTransactionID(gomock.Any(), gomock.Any()).
+					Return(mockInquiry, nil)
+
+				return m
+			}(),
+			publisher: func() *mocks.MockPublisher {
+				ctrl := gomock.NewController(t)
+				m := mocks.NewMockPublisher(ctrl)
+
+				m.
+					EXPECT().
+					Publish(gomock.Any()).
+					Return(errors.New("Unknown Error"))
+
+				return m
+			}(),
 			ctxTimeout: time.Second * 1,
 			ctx:        context.TODO(),
 			expectedReturn: resType{
@@ -193,7 +276,7 @@ func TestCreateInquiry(t *testing.T) {
 
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			service := payments.NewService(tC.inquiriesService, tC.paymentsRepo, tC.paymentCodesService)
+			service := payments.NewService(tC.inquiriesService, tC.paymentsRepo, tC.paymentCodesService, tC.publisher)
 			p, err := service.Create(tC.ctx, &golangtraining.Payment{})
 
 			if tC.expectedReturn.Err != nil {
