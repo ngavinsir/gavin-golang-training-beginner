@@ -15,6 +15,7 @@ import (
 	postgresRepository "github.com/ngavinsir/golangtraining/internal/postgres"
 	"github.com/ngavinsir/golangtraining/internal/users"
 	"github.com/ngavinsir/golangtraining/paymentcodes"
+	"github.com/ngavinsir/golangtraining/payments"
 	"github.com/spf13/cobra"
 )
 
@@ -30,6 +31,8 @@ var (
 	paymentCodesService    *paymentcodes.PaymentCodesService
 	inquiriesRepository    *postgresRepository.InquiriesRepository
 	inquiriesService       *inquiries.InquiriesService
+	paymentsRepository     *postgresRepository.PaymentsRepository
+	paymentsService        *payments.PaymentsService
 	expirePaymentCodesJob  *jobs.ExpirePaymentCodesJob
 )
 
@@ -53,6 +56,9 @@ func initApp() {
 
 	inquiriesRepository = postgresRepository.NewInquiriesRepository(dbConn)
 	inquiriesService = inquiries.NewService(inquiriesRepository, paymentCodesService)
+
+	paymentsRepository = postgresRepository.NewPaymentsRepository(dbConn)
+	paymentsService = payments.NewService(inquiriesService, paymentsRepository, paymentCodesService)
 
 	expirePaymentCodesJob = jobs.NewExpirePaymentCodesJob(paymentCodesService)
 }
