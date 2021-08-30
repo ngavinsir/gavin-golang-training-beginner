@@ -26,6 +26,8 @@ func restServer(cmd *cobra.Command, args []string) {
 
 	restHandler.InitHelloHandler(r)
 	restHandler.InitPaymentCodesHandler(r, paymentCodesService)
+	restHandler.InitInquiriesHandler(r, inquiriesService)
+	restHandler.InitPaymentsHandler(r, paymentsService)
 
 	port := ":5050"
 	if envPort := os.Getenv("PORT"); envPort != "" {

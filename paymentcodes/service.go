@@ -13,6 +13,7 @@ import (
 type Repository interface {
 	Create(ctx context.Context, p *golangtraining.PaymentCode) error
 	GetByID(ctx context.Context, id string) (golangtraining.PaymentCode, error)
+	GetByPaymentCode(ctx context.Context, paymentCode string) (golangtraining.PaymentCode, error)
 	Expire(ctx context.Context) error
 }
 
@@ -65,6 +66,15 @@ func (s PaymentCodesService) Create(ctx context.Context, p *golangtraining.Payme
 
 func (s PaymentCodesService) GetByID(ctx context.Context, id string) (golangtraining.PaymentCode, error) {
 	res, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return res, err
+	}
+
+	return res, nil
+}
+
+func (s PaymentCodesService) GetByPaymentCode(ctx context.Context, paymentCode string) (golangtraining.PaymentCode, error) {
+	res, err := s.repo.GetByPaymentCode(ctx, paymentCode)
 	if err != nil {
 		return res, err
 	}

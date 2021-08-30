@@ -9,11 +9,16 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	_ "github.com/lib/pq"
+	"github.com/ngavinsir/golangtraining/inquiries"
 	"github.com/ngavinsir/golangtraining/internal/jobs"
 	postgresRepository "github.com/ngavinsir/golangtraining/internal/postgres"
+	"github.com/ngavinsir/golangtraining/internal/sqs"
 	"github.com/ngavinsir/golangtraining/internal/users"
 	"github.com/ngavinsir/golangtraining/paymentcodes"
+	"github.com/ngavinsir/golangtraining/payments"
 	"github.com/spf13/cobra"
 )
 
@@ -27,6 +32,10 @@ var (
 var (
 	paymentCodesRepository *postgresRepository.PaymentCodesRepository
 	paymentCodesService    *paymentcodes.PaymentCodesService
+	inquiriesRepository    *postgresRepository.InquiriesRepository
+	inquiriesService       *inquiries.InquiriesService
+	paymentsRepository     *postgresRepository.PaymentsRepository
+	paymentsService        *payments.PaymentsService
 	expirePaymentCodesJob  *jobs.ExpirePaymentCodesJob
 )
 
@@ -43,10 +52,17 @@ func init() {
 func initApp() {
 	dbConn := initDB()
 	httpClient := initHttpClient()
+	sqsPublisher := initSQSPublisher()
 
 	paymentCodesRepository = postgresRepository.NewPaymentCodesRepository(dbConn)
 	users := users.NewUsersClient(httpClient)
 	paymentCodesService = paymentcodes.NewService(paymentCodesRepository, users)
+
+	inquiriesRepository = postgresRepository.NewInquiriesRepository(dbConn)
+	inquiriesService = inquiries.NewService(inquiriesRepository, paymentCodesService)
+
+	paymentsRepository = postgresRepository.NewPaymentsRepository(dbConn)
+	paymentsService = payments.NewService(inquiriesService, paymentsRepository, paymentCodesService, sqsPublisher)
 
 	expirePaymentCodesJob = jobs.NewExpirePaymentCodesJob(paymentCodesService)
 }
@@ -85,6 +101,32 @@ func initHttpClient() *http.Client {
 		},
 		Timeout: 10 * time.Second,
 	}
+}
+
+func initSQSPublisher() *sqs.Publisher {
+	s := initAWSSession()
+	q := mustHaveEnv("SQS_QUEUE_NAME")
+	p, err := sqs.NewPublisher(s, q)
+	if err != nil {
+		panic(err)
+	}
+
+	return p
+}
+
+func initAWSSession() *session.Session {
+	region := mustHaveEnv("SQS_AWS_REGION")
+	endpoint := mustHaveEnv("SQS_ENDPOINT")
+
+	sess, err := session.NewSession(&aws.Config{
+		Region:   &region,
+		Endpoint: &endpoint,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	return sess
 }
 
 func mustHaveEnv(key string) string {

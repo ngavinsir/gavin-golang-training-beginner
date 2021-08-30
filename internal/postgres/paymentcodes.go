@@ -48,6 +48,20 @@ func (r PaymentCodesRepository) GetByID(ctx context.Context, id string) (golangt
 	return paymentCode, nil
 }
 
+func (r PaymentCodesRepository) GetByPaymentCode(ctx context.Context, paymentCode string) (golangtraining.PaymentCode, error) {
+	var res golangtraining.PaymentCode
+	sqlStatement := `SELECT * FROM payment_code where payment_code=$1 limit 1`
+	row := r.DB.QueryRowContext(ctx, sqlStatement, paymentCode)
+	if err := row.Scan(
+		&res.ID, &res.PaymentCode, &res.Name, &res.Status,
+		&res.ExpirationDate, &res.CreatedAt, &res.UpdatedAt,
+	); err != nil {
+		return res, err
+	}
+
+	return res, nil
+}
+
 func (r PaymentCodesRepository) Expire(ctx context.Context) error {
 	updatedAt := time.Now().UTC()
 
